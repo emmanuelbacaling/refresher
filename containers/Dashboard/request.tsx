@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API = `${"http://192.168.0.105:3000"}`;
+const API = `${"https://jsonplaceholder.typicode.com"}`;
 
-export const searchCategory = async (search: String) => {
+export const getUsers = async () => {
   try {
-    const { data } = await axios.get(`${API}/category/filter?search=${search}`);
+    const { data } = await axios.get(`${API}/users`);
     return data;
   } catch (error) {
     console.log(error);

@@ -1,13 +1,15 @@
-import { StyleSheet, Text, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View
+} from "react-native";
 import TopSearch from "../../components/TopSearch";
 import { useEffect, useState } from "react";
-import Item from "../Item";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Avatar, ListItem } from "react-native-elements";
 import { Image } from "@rneui/base";
-import BottomNav from "../../components/BottomNav";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { getCategory, searchCategory } from "./request";
+import { getUsers } from "./request";
 
 type Category = [
   {
@@ -17,91 +19,135 @@ type Category = [
   }
 ];
 
+type UserData = [
+  {
+    name?: string;
+    id?: string;
+    image?: string;
+    website?: string;
+    phone?: string;
+    company: {
+      name: string;
+      catchPhrase: string;
+      bs: string;
+    };
+    address: {
+      street: string;
+      suite: string;
+      city: string;
+      zipcode: string;
+      geo: {
+        lat: string;
+        lng: string;
+      };
+    };
+  }
+];
+
 const Dashboard = ({ navigation }: any) => {
   const [searchData, setSearchData] = useState("");
+  const [userData, setUserData] = useState<UserData | any>([]);
   const [categories, setCategories] = useState<Category>([{ image: "" }]);
 
-  const getData = async () => {
-    const { data } = await getCategory();
-    setCategories(data);
-  };
-
-  const searchCat = async (search: String) => {
-    const data = await searchCategory(search);
-    setCategories(data.data);
-  };
-
   useEffect(() => {
+    const getData = async () => {
+      const user: any = await getUsers();
+      setUserData(user);
+    };
+
     getData();
   }, []);
 
-  useEffect(() => {
-    searchCat(searchData);
-  }, [searchData]);
+  const onPressProfile = (user: UserData) => {
+    navigation.navigate("UserDetail", { user });
+  };
 
   return (
     <View>
-      <TopSearch setSearchData={setSearchData} />
+      {/* <TopSearch setSearchData={setSearchData} /> */}
       <View style={styles.container}>
-        <View style={styles.flexContainer}>
-          {categories.map((e, k) => {
-            console.log(e);
+        <ScrollView>
+          {userData.map((user: any, index: number) => {
+            const image = `https://avatar.iran.liara.run/public/boy?username=${user.name}`;
             return (
-              <ListItem
-                key={k}
-                style={styles.dashboardItem}
-                onPress={() => {
-                  navigation.navigate("Item", { category: e._id });
-                }}
+              <TouchableWithoutFeedback
+                onPress={() => onPressProfile({ ...user, image })}
               >
-                <ListItem.Content
-                  style={{
-                    textAlign: "center",
-                    justifyContent: "center",
-
-                    height: 100
-                  }}
-                >
-                  <ListItem.Title
-                    style={{
-                      textAlign: "center",
-                      width: "100%",
-                      fontWeight: "700"
-                    }}
-                  >
-                    {e.name}
-                  </ListItem.Title>
-                  <Avatar
-                    containerStyle={{ width: "100%", height: 80 }}
-                    source={{ uri: e.image }}
-                  />
-                </ListItem.Content>
-              </ListItem>
+                <View style={styles.dashboardItem}>
+                  <ListItem key={index}>
+                    <Avatar
+                      containerStyle={{ width: 70, height: 70 }}
+                      source={{
+                        uri: image
+                      }}
+                    />
+                    <ListItem.Content
+                      style={{
+                        width: "70%",
+                        textAlign: "left"
+                      }}
+                    >
+                      <ListItem.Title
+                        style={{ ...styles.textSpacing, fontWeight: "500" }}
+                      >
+                        <Image
+                          source={require("../../assets/circle-user.png")}
+                          style={styles.imageStyle}
+                        />
+                        {user.name}
+                      </ListItem.Title>
+                      <Text style={styles.textSpacing}>
+                        <Image
+                          source={require("../../assets/building.png")}
+                          style={styles.imageStyle}
+                        />
+                        {user.company.name}
+                      </Text>
+                      <Text style={styles.textSpacing}>
+                        <Image
+                          source={require("../../assets/at.png")}
+                          style={styles.imageStyle}
+                        />
+                        {user.email}
+                      </Text>
+                      <Text style={styles.textSpacing}>
+                        <Image
+                          source={require("../../assets/phone-flip.png")}
+                          style={styles.imageStyle}
+                        />
+                        {user.phone}
+                      </Text>
+                    </ListItem.Content>
+                    <ListItem.Chevron style={{ color: "red" }} color={"#000"} />
+                  </ListItem>
+                </View>
+              </TouchableWithoutFeedback>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
-      <BottomNav navigation={navigation} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    marginHorizontal: "2%",
-    height: "72%"
-  },
-  flexContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    textAlign: "center"
+    width: "100%"
   },
   dashboardItem: {
-    width: "30%",
-    margin: "1%",
-    backgroundColor: "red",
-    borderWidth: 1
+    width: "100%",
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+    marginVertical: 5
+  },
+  imageStyle: {
+    width: 13,
+    height: 13,
+    marginRight: 10
+  },
+  textSpacing: {
+    marginVertical: 2,
+    fontSize: 13
   }
 });
 

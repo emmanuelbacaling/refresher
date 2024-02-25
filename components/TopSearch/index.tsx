@@ -1,4 +1,4 @@
-import { Button, Icon, Input } from "@rneui/base";
+import { Button, Header, Icon, Input } from "@rneui/base";
 import { StyleSheet, TextInput, View } from "react-native";
 
 type Props = {
@@ -9,16 +9,11 @@ const TopSearch = (props: Props) => {
   const { setSearchData } = props;
   return (
     <View style={styles.container}>
-      <Input
-        inputContainerStyle={styles.searchContainer}
-        inputStyle={{
-          paddingHorizontal: 10
-        }}
-        onChangeText={(text) => {
-          setSearchData(text);
-        }}
-        rightIcon={<Icon type="font-awesome" name="search" />}
-        placeholder="Input"
+      <Header
+        placement="left"
+        leftComponent={{ icon: "menu", color: "#fff" }}
+        centerComponent={{ text: "MY TITLE", style: { color: "#fff" } }}
+        rightComponent={{ icon: "home", color: "#fff" }}
       />
     </View>
   );
